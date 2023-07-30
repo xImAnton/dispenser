@@ -9,6 +9,14 @@ def init(cache_path: str = "~/__dispenser__/"):
         prov.reload(cache_path)
 
 
+def get_softwares():
+    return list(VERSION_PROVIDERS.keys())
+
+
+def get_software(name: str):
+    return VERSION_PROVIDERS[name]
+
+
 def dispense(software: str, major: str, minor: str, directory: str = "."):
     provider = VERSION_PROVIDERS[software]
 

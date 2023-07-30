@@ -6,6 +6,7 @@ import json
 import os.path
 import pathlib
 import time
+import urllib.request
 from typing import List, Optional
 
 
@@ -107,8 +108,34 @@ class VersionProvider(abc.ABC):
         """
         return ""
 
-    def update_major(self, path: str, new_major: Optional[str] = None):
-        pass
+    def get_newest_major(self):
+        return self.get_major_versions()[-1]
 
-    def update_minor(self, path: str, new_minor: Optional[str] = None):
-        pass
+    def get_newest_minor(self, major: str):
+        return self.get_minor_versions(major)[-1]
+
+    def update_major(self, path: pathlib.Path, new_major: Optional[str] = None) -> tuple[str, str]:
+        if new_major is None:
+            new_major = self.get_newest_major()
+        elif new_major not in self.get_major_versions():
+            raise ValueError(f"invalid major version: {new_major}")
+
+        minor = self.get_newest_minor(new_major)
+
+        os.remove(str(path.joinpath(self.DOWNLOAD_FILE_NAME)))
+
+        urllib.request.urlretrieve(self.get_download(new_major, minor), self.DOWNLOAD_FILE_NAME)
+
+        return new_major, minor
+
+    def update_minor(self, path: pathlib.Path, major: str, new_minor: Optional[str] = None) -> str:
+        if new_minor is None:
+            new_minor = self.get_newest_minor(major)
+        elif new_minor not in self.get_minor_versions(major):
+            raise ValueError(f"invalid minor version: {new_minor}")
+
+        os.remove(str(path.joinpath(self.DOWNLOAD_FILE_NAME)))
+
+        urllib.request.urlretrieve(self.get_download(major, new_minor), self.DOWNLOAD_FILE_NAME)
+
+        return new_minor

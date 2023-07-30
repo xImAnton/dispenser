@@ -1,5 +1,7 @@
 import os
+import pathlib
 import subprocess
+from typing import Optional
 
 import requests
 
@@ -46,3 +48,9 @@ class ForgeVersionProvider(VersionProvider):
 
     def get_minecraft_version(self, major, minor):
         return major
+
+    def update_major(self, path: pathlib.Path, new_major: Optional[str] = None):
+        raise NotImplemented("forge servers don't support updates yet")
+
+    def update_minor(self, path: pathlib.Path, major: str, new_minor: Optional[str] = None):
+        raise NotImplemented("forge servers don't support updates yet")
