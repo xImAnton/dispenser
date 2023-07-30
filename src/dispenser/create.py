@@ -4,9 +4,9 @@ import urllib.request
 from .impl import VERSION_PROVIDERS
 
 
-def init():
+def init(cache_path: str = "~/__dispenser__/"):
     for prov in VERSION_PROVIDERS.values():
-        prov.reload()
+        prov.reload(cache_path)
 
 
 def dispense(software: str, major: str, minor: str, directory: str = "."):

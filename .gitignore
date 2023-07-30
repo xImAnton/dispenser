@@ -1,0 +1,4 @@
+.idea
+dist
+provider-data.json
+*.egg-info

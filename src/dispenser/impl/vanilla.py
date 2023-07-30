@@ -1,8 +1,6 @@
-import aiohttp
 import requests
 
 from ..version_base import VersionProvider
-
 
 URL_VANILLA_GET_VERSIONS = "https://launchermeta.mojang.com/mc/game/version_manifest.json"
 
@@ -26,20 +24,22 @@ class VanillaVersionProvider(VersionProvider):
             resp = session.get(URL_VANILLA_GET_VERSIONS).json()
 
         for v in resp["versions"]:
-            if v["type"] in ["release", "snapshot"]:
-                out[v["id"]] = v["url"]
+            if v["type"] not in out:
+                out[v["type"]] = {}
+
+            out[v["type"]][v["id"]] = v["url"]
 
         return out
 
     def get_major_versions(self):
-        return ["release", "snapshot"]
+        return list(self.versions.keys())
 
     def get_minor_versions(self, major):
         return self.versions.get(major, [])
 
     def get_download(self, major, minor):
         with requests.Session() as session:
-            resp = session.get(self.versions[minor]).json()
+            resp = session.get(self.versions[major][minor]).json()
 
         url = resp["downloads"]["server"]["url"]
         return url

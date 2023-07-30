@@ -2,12 +2,11 @@
 version provider base class
 """
 import abc
-import time
-from typing import List
-import os.path
 import json
-
-from .util import create_file_if_not_exists
+import os.path
+import pathlib
+import time
+from typing import List, Optional
 
 
 class VersionProvider(abc.ABC):
@@ -19,12 +18,19 @@ class VersionProvider(abc.ABC):
     DOWNLOAD_FILE_NAME = "server.jar"
     CACHE_TIME = 7200
 
-    def reload(self, force: bool = False) -> None:
+    def reload(self, path: str, force: bool = False) -> None:
         """
         reloads the version provider from cache or newly fetched data
         """
-        data_file = os.path.join("cache", "versions", self.NAME + ".json")
-        create_file_if_not_exists(data_file, "{}")
+        path = pathlib.Path(path).expanduser().absolute()
+
+        path.mkdir(exist_ok=True, parents=True)
+
+        data_file = path.joinpath(self.NAME + ".json")
+
+        if not data_file.is_file():
+            with open(data_file, "w") as f:
+                f.write("{}")
 
         with open(data_file, "r") as f:
             data = json.loads(f.read())
@@ -35,6 +41,8 @@ class VersionProvider(abc.ABC):
 
             with open(data_file, "w") as f:
                 f.write(json.dumps(data))
+
+        data.pop("$time")
 
         self.reload_from_data(data)
 
@@ -98,3 +106,9 @@ class VersionProvider(abc.ABC):
         :return: the minecraft version as string. example: "1.17.1"
         """
         return ""
+
+    def update_major(self, path: str, new_major: Optional[str] = None):
+        pass
+
+    def update_minor(self, path: str, new_minor: Optional[str] = None):
+        pass

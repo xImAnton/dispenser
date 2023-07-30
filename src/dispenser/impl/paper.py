@@ -1,4 +1,3 @@
-import aiohttp
 import requests
 
 from ..version_base import VersionProvider
